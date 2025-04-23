@@ -1,0 +1,110 @@
+{
+  "aesthetics": [
+    "assets/images/aesthetics/1.png",
+    "assets/images/aesthetics/2.png",
+    "assets/images/aesthetics/3.png",
+    "assets/images/aesthetics/4.png",
+    "assets/images/aesthetics/5.png",
+    "assets/images/aesthetics/6.png",
+    "assets/images/aesthetics/7.png",
+    "assets/images/aesthetics/8.png",
+    "assets/images/aesthetics/9.png",
+    "assets/images/aesthetics/10.png"
+  ],
+  "animals": [
+    "assets/images/animals/1.png",
+    "assets/images/animals/2.png",
+    "assets/images/animals/3.png",
+    "assets/images/animals/4.png",
+    "assets/images/animals/5.png",
+    "assets/images/animals/6.png",
+    "assets/images/animals/7.png",
+    "assets/images/animals/8.png",
+    "assets/images/animals/9.png",
+    "assets/images/animals/10.png"
+  ],
+  "anime": [
+    "assets/images/anime/1.png",
+    "assets/images/anime/2.png",
+    "assets/images/anime/3.png",
+    "assets/images/anime/4.png",
+    "assets/images/anime/5.png",
+    "assets/images/anime/6.png",
+    "assets/images/anime/7.png",
+    "assets/images/anime/8.png",
+    "assets/images/anime/9.png",
+    "assets/images/anime/10.png"
+  ],
+  "cars": [
+    "assets/images/cars/1.png",
+    "assets/images/cars/2.png",
+    "assets/images/cars/3.png",
+    "assets/images/cars/4.png",
+    "assets/images/cars/5.png",
+    "assets/images/cars/6.png",
+    "assets/images/cars/7.png",
+    "assets/images/cars/8.png",
+    "assets/images/cars/9.png",
+    "assets/images/cars/10.png"
+  ],
+  "bakery": [
+    "assets/images/bakery/1.png",
+    "assets/images/bakery/2.png",
+    "assets/images/bakery/3.png",
+    "assets/images/bakery/4.png",
+    "assets/images/bakery/5.png",
+    "assets/images/bakery/6.png",
+    "assets/images/bakery/7.png",
+    "assets/images/bakery/8.png",
+    "assets/images/bakery/9.png",
+    "assets/images/bakery/10.png"
+  ],
+  "flower": [
+    "assets/images/flower/1.png",
+    "assets/images/flower/2.png",
+    "assets/images/flower/3.png",
+    "assets/images/flower/4.png",
+    "assets/images/flower/5.png",
+    "assets/images/flower/6.png",
+    "assets/images/flower/7.png",
+    "assets/images/flower/8.png",
+    "assets/images/flower/9.png",
+    "assets/images/flower/10.png"
+  ],
+  "fruit": [
+    "assets/images/fruit/1.png",
+    "assets/images/fruit/2.png",
+    "assets/images/fruit/3.png",
+    "assets/images/fruit/4.png",
+    "assets/images/fruit/5.png",
+    "assets/images/fruit/6.png",
+    "assets/images/fruit/7.png",
+    "assets/images/fruit/8.png",
+    "assets/images/fruit/9.png",
+    "assets/images/fruit/10.png"
+  ],
+  "space": [
+    "assets/images/space/1.png",
+    "assets/images/space/2.png",
+    "assets/images/space/3.png",
+    "assets/images/space/4.png",
+    "assets/images/space/5.png",
+    "assets/images/space/6.png",
+    "assets/images/space/7.png",
+    "assets/images/space/8.png",
+    "assets/images/space/9.png",
+    "assets/images/space/10.png"
+  ],
+  "vegetable": [
+    "assets/images/vegetable/1.png",
+    "assets/images/vegetable/2.png",
+    "assets/images/vegetable/3.png",
+    "assets/images/vegetable/4.png",
+    "assets/images/vegetable/5.png",
+    "assets/images/vegetable/6.png",
+    "assets/images/vegetable/7.png",
+    "assets/images/vegetable/8.png",
+    "assets/images/vegetable/9.png",
+    "assets/images/vegetable/10.png"
+  ]
+}

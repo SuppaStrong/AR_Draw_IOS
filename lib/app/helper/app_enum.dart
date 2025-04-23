@@ -1,0 +1,1 @@
+enum LocalisationEnum { en, hi,gu }

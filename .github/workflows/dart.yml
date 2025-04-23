@@ -1,0 +1,50 @@
+name: Flutter CI
+
+on:
+  pull_request:
+    branches: [ "develop-1.0.1" ]
+
+jobs:
+  build:
+    runs-on: macos-latest  # Use macOS instead of Ubuntu
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Set up Flutter with the desired version (3.24.3)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.3"
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Serialise model
+        run: dart run build_runner build
+
+      - name: Analyze Project Source
+        id: analyze
+        run: |
+          flutter analyze > analyze_result.txt
+          cat analyze_result.txt
+
+      - name: Send Slack Notification
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          ANALYZE_RESULT=$(cat analyze_result.txt)
+          curl -X POST -H 'Content-type: application/json' --data \
+          '{
+            "text": "*Flutter CI Pipeline Result*",
+            "attachments": [
+              {
+                "color": "#36a64f",
+                "title": "Code Analysis",
+                "text": "'"$ANALYZE_RESULT"'"
+              }
+            ]
+          }' $SLACK_WEBHOOK_URL

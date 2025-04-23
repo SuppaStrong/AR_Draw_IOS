@@ -1,0 +1,97 @@
+name: ar_draw
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Image view :
+  cached_network_image: 3.4.1
+  flutter_svg: 2.0.10+1
+  lottie: 3.1.2
+  image_picker: 1.1.2
+  image_cropper: 8.0.2
+  widgets_to_image: 1.0.0
+
+  #Camera View :
+  camera: 0.11.1
+  permission_handler: 11.3.1
+
+  #Video Player:
+  video_thumbnail: 0.5.3
+  video_player: 2.9.5
+  device_info_plus: 11.0.0
+
+  # App animations :
+  loading_animation_widget: 1.2.1
+  shimmer: 3.0.0
+
+  #init:
+  intl: 0.19.0
+
+  # Storage
+  shared_preferences: 2.3.2
+
+  # State management :
+  get: 4.6.6
+  json_annotation: ^4.9.0
+
+  # UI
+  google_fonts: 6.2.1
+
+  # App Utills :
+  logger: 2.4.0
+
+  # Web View
+  webview_flutter: 4.9.0
+
+  # URL Launch
+  url_launcher: 6.3.1
+  share_plus: 10.1.0
+
+  path_provider: any
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+  # json serialization :
+  build_runner: 2.4.12
+  json_serializable: 6.8.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+     - assets/images/
+     - assets/icons/
+     - assets/json/
+     - assets/images/aesthetics/
+     - assets/images/animals/
+     - assets/images/anime/
+     - assets/images/cars/
+     - assets/images/bakery/
+     - assets/images/flower/
+     - assets/images/fruit/
+     - assets/images/space/
+     - assets/images/vegetable/
+
+
+
+#  fonts:
+#     - family: Schyler
+#       fonts:
+#         - asset: fonts/Schyler-Regular.ttf
+#         - asset: fonts/Schyler-Italic.ttf
+#           style: italic
