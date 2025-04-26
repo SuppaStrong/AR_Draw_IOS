@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math' as math;
 
 import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
@@ -8,14 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CanvasDrawScreenHelper {
-  CanvasDrawScreenState state;
+  final CanvasDrawScreenState state;
   bool isText = false;
   bool isImage = false;
   String? imagePath;
   Offset position = Offset.zero;
   Offset initialPosition = Offset.zero;
   double scale = 1.0;
-  double lastZoomScale = 1.0;
   double baseScale = 1.0;
   double rotationAngle = 0.0;
   bool isFlipped = false;
@@ -23,6 +23,13 @@ class CanvasDrawScreenHelper {
   double currentSliderValue = 1.0;
   Color selectedColor = AppColorConstant.appWhite;
   Uint8List? textImageBytes;
+  
+  // For gesture handling
+  double previousRotation = 0.0;
+  
+  // UI visibility control
+  bool isUiHidden = false;
+  
   List<Color>? colorList = [
     AppColorConstant.appWhite,
     AppColorConstant.appBlack,
@@ -38,7 +45,6 @@ class CanvasDrawScreenHelper {
 
   bool isLocked = false;
   bool isZoomed = false;
-
 
   CanvasDrawScreenHelper(this.state) {
     init();
@@ -64,7 +70,9 @@ class CanvasDrawScreenHelper {
       final screenHeight = Get.size.height;
 
       final contentWidth = screenWidth / 1.2;
-      final contentHeight = isText || !isImage ? screenHeight / 1.5 : screenHeight / 1.2;
+      final contentHeight = isText || !isImage 
+          ? screenHeight / 1.5 
+          : screenHeight / 1.2;
 
       initialPosition = Offset(
         (screenWidth - contentWidth) / 2,
@@ -79,33 +87,44 @@ class CanvasDrawScreenHelper {
   void resetToInitialPosition() {
     position = initialPosition;
     scale = 1.0;
-    lastZoomScale = 1.0;
     baseScale = 1.0;
     rotationAngle = 0.0;
+    previousRotation = 0.0;
     isFlipped = false;
     isZoomed = false;
     currentSliderValue = 1.0;
     state.canvasDrawController?.update();
   }
 
-  void onImageDrag(ScaleUpdateDetails details) {
-    if (!isLocked) {
-      position += details.focalPointDelta;
-
-      if (isZoomed) {
-        double newScale = baseScale * details.scale;
-        newScale = newScale.clamp(1.0, 3.0);
-
-        if (scale != newScale) {
-          lastZoomScale = scale;
-        }
-
-        scale = newScale;
-      }
-
-      state.canvasDrawController?.update();
-    }
+  void onScaleStart(ScaleStartDetails details) {
+    if (isLocked) return;
+    
+    baseScale = scale;
+    previousRotation = 0.0; // Reset for this gesture
   }
+
+  void onScaleUpdate(ScaleUpdateDetails details) {
+    if (isLocked) return;
+
+    // Handle position (pan)
+    position += details.focalPointDelta;
+    
+    // Handle scaling if zoom is enabled
+    if (isZoomed) {
+      scale = (baseScale * details.scale).clamp(1.0, 3.0);
+    }
+
+    // Handle rotation with two fingers
+    if (details.pointerCount >= 2) {
+      // The rotation value in details represents the angle between two fingers
+      final double delta = details.rotation - previousRotation;
+      rotationAngle += delta;
+      previousRotation = details.rotation;
+    }
+
+    state.canvasDrawController?.update();
+  }
+
   void toggleLock() {
     isLocked = !isLocked;
     state.canvasDrawController?.update();
@@ -116,20 +135,10 @@ class CanvasDrawScreenHelper {
       isFlipped = !isFlipped;
     }
   }
+
   void toggleZoom() {
     if (!isLocked) {
       isZoomed = !isZoomed;
-      state.canvasDrawController?.update();
-
-    }
-  }
-
-  void rotateImage() {
-    if (!isLocked) {
-      rotationAngle += (90 * (3.14159 / 180));
-      if (rotationAngle >= (2 * 3.14159)) {
-        rotationAngle = 0.0;
-      }
       state.canvasDrawController?.update();
     }
   }
@@ -139,8 +148,13 @@ class CanvasDrawScreenHelper {
     state.canvasDrawController?.update();
   }
 
-  changeColor(int index) {
+  void changeColor(int index) {
     selectedColor = colorList![index];
+    state.canvasDrawController?.update();
+  }
+  
+  void toggleUiVisibility() {
+    isUiHidden = !isUiHidden;
     state.canvasDrawController?.update();
   }
 }

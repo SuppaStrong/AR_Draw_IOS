@@ -8,7 +8,6 @@ class AppWebViewController extends GetxController {
 bool isLoading = false;
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     webViewInitialize();
   }

@@ -1,14 +1,12 @@
-import 'package:ar_draw/app/constant/app_asset.dart';
 import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/constant/string_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
-import 'package:ar_draw/app/utills/dimension.dart';
 import 'package:ar_draw/app/widgets/app_app_bar.dart';
 import 'package:ar_draw/app/widgets/app_image_asset.dart';
-import 'package:ar_draw/app/widgets/app_text.dart';
 import 'package:ar_draw/app_routes/route_helper.dart';
 import 'package:ar_draw/controller/canvas_draw_controller.dart';
 import 'package:ar_draw/screen/dashboard_module/canvas_draw/canvas_draw_screen_helper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,125 +24,213 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
   @override
   Widget build(BuildContext context) {
     "current screen --> $runtimeType".logs();
-    canvasDrawScreenHelper ?? (canvasDrawScreenHelper = CanvasDrawScreenHelper(this));
+    canvasDrawScreenHelper ??= CanvasDrawScreenHelper(this);
 
-    return GetBuilder(
+    return Scaffold(
+      appBar: AppAppBarIOS(
+        title: AppStringConstant.canvasDraw,
+        actions: [
+          Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(
+                CupertinoIcons.question,
+                color: AppColorConstant.appDeepPurple,
+              ),
+              onPressed: () {
+                RouteHelper.instance.gotoHowToUseScreen();
+              },
+            ),
+          ),
+        ],
+      ),
+      body: GetBuilder(
         init: CanvasDrawController(),
         builder: (CanvasDrawController controller) {
           canvasDrawController = controller;
-          return Scaffold(
-            appBar: AppAppBar(
-              appbarTitle: AppStringConstant.canvasDraw,
-              onSuffixTap: () => RouteHelper.instance.gotoHowToUseScreen(),
-              suffixIcon: AppAsset.icQuestion,
-            ),
-            body: Column(
-              children: [buildCanvasView(), (canvasDrawScreenHelper?.isColorTap == true) ? buildColorView() : buildOpacityView(), buildOptionsView()],
+          return CupertinoPageScaffold(
+            backgroundColor: CupertinoColors.systemBackground,
+            child: SafeArea(
+              top: !canvasDrawScreenHelper!.isUiHidden,
+              bottom: false,
+              child: Column(
+                children: [
+                  buildCanvasView(),
+                  if (!canvasDrawScreenHelper!.isUiHidden) ...[
+                    canvasDrawScreenHelper!.isColorTap
+                        ? buildColorView()
+                        : buildOpacityView(),
+                    buildOptionsView()
+                  ],
+                ],
+              ),
             ),
           );
-        });
+        },
+      ),
+    );
   }
 
   Widget buildCanvasView() {
     return Expanded(
+      child: Container(
+        color: canvasDrawScreenHelper?.selectedColor,
         child: Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          color: canvasDrawScreenHelper?.selectedColor,
-        ),
-        Positioned(
-          left: canvasDrawScreenHelper?.position.dx,
-          top: canvasDrawScreenHelper?.position.dy,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onScaleStart: (details) => canvasDrawScreenHelper?.baseScale = canvasDrawScreenHelper!.scale,
-
-            onScaleUpdate: (details) => canvasDrawScreenHelper?.onImageDrag(details),
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..scale(
-                  canvasDrawScreenHelper?.isZoomed == true
-                      ? (canvasDrawScreenHelper?.scale ?? 1.0)
-                      : 1.0,
-                )
-                ..rotateZ(canvasDrawScreenHelper?.rotationAngle ?? 0.0)
-                ..scale(canvasDrawScreenHelper!.isFlipped ? -1.0 : 1.0, 1.0),
-              child: Opacity(
-                opacity: canvasDrawScreenHelper!.currentSliderValue,
-                child: (canvasDrawScreenHelper?.isText != true)
-                    ? AppImageAsset(
-                        image: canvasDrawScreenHelper?.imagePath ?? "",
-                        isFile: canvasDrawScreenHelper?.isImage == true && canvasDrawScreenHelper?.isText == false ? true : false,
-                        width: Get.size.width / 1.2,
-                        fit: BoxFit.cover,
-                      )
-                    : (canvasDrawScreenHelper!.textImageBytes != null)
-                        ? Image.memory(
-                            canvasDrawScreenHelper!.textImageBytes!,
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              left: canvasDrawScreenHelper?.position.dx,
+              top: canvasDrawScreenHelper?.position.dy,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onScaleStart: canvasDrawScreenHelper?.onScaleStart,
+                onScaleUpdate: canvasDrawScreenHelper?.onScaleUpdate,
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..scale(
+                      canvasDrawScreenHelper?.isZoomed == true
+                          ? (canvasDrawScreenHelper?.scale ?? 1.0)
+                          : 1.0,
+                    )
+                    ..rotateZ(canvasDrawScreenHelper?.rotationAngle ?? 0.0)
+                    ..scale(
+                        canvasDrawScreenHelper!.isFlipped ? -1.0 : 1.0, 1.0),
+                  child: Opacity(
+                    opacity: canvasDrawScreenHelper!.currentSliderValue,
+                    child: (canvasDrawScreenHelper?.isText != true)
+                        ? AppImageAsset(
+                            image: canvasDrawScreenHelper?.imagePath ?? "",
+                            isFile: canvasDrawScreenHelper?.isImage == true &&
+                                    canvasDrawScreenHelper?.isText == false
+                                ? true
+                                : false,
                             width: Get.size.width / 1.2,
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                           )
-                        : const SizedBox.shrink(),
+                        : (canvasDrawScreenHelper!.textImageBytes != null)
+                            ? Image.memory(
+                                canvasDrawScreenHelper!.textImageBytes!,
+                                width: Get.size.width / 1.2,
+                                fit: BoxFit.fill,
+                              )
+                            : const SizedBox.shrink(),
+                  ),
+                ),
               ),
             ),
-          ),
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      _buildFloatingButton(
+                        icon: canvasDrawScreenHelper!.isLocked
+                            ? CupertinoIcons.lock_fill
+                            : CupertinoIcons.lock_open_fill,
+                        isActive: canvasDrawScreenHelper!.isLocked,
+                        onTap: () => canvasDrawScreenHelper!.toggleLock(),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildFloatingButton(
+                        icon: CupertinoIcons.arrow_counterclockwise,
+                        onTap: () =>
+                            canvasDrawScreenHelper?.resetToInitialPosition(),
+                      ),
+                    ],
+                  ),
+                  _buildFloatingButton(
+                    icon: canvasDrawScreenHelper!.isUiHidden
+                        ? CupertinoIcons.eye
+                        : CupertinoIcons.eye_slash,
+                    isActive: true,
+                    onTap: () => canvasDrawScreenHelper!.toggleUiVisibility(),
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
-        Positioned(
-          bottom: 10,
-          left: 12,
-          right: 12,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () => canvasDrawScreenHelper!.toggleLock(),
-                child: Container(
-                  height: Dimens.heightExtraMedium,
-                  width: Dimens.widthExtraMedium,
-                  padding: const EdgeInsets.all(DimensPadding.paddingSmallNormal),
-                  decoration: BoxDecoration(
-                    color: AppColorConstant.appLightPurple,
-                    borderRadius: BorderRadius.circular(Dimens.defaultBorderRadius),
-                  ),
-                  child: AppImageAsset(image: AppAsset.icLock, color: canvasDrawScreenHelper!.isLocked ? AppColorConstant.appWhite : AppColorConstant.appLightGrey),
-                ),
-              ),
-              GestureDetector(onTap: () => canvasDrawScreenHelper?.resetToInitialPosition(),
-                child: Container(
-                  height: Dimens.heightExtraMedium,
-                  width: Dimens.widthExtraMedium,
-                  padding: const EdgeInsets.all(DimensPadding.paddingMedium),
-                  decoration: BoxDecoration(
-                    color: AppColorConstant.appLightPurple,
-                    borderRadius: BorderRadius.circular(Dimens.defaultBorderRadius),
-                  ),
-                  child: const AppImageAsset(image: AppAsset.icRefresh, color: AppColorConstant.appWhite),
-                ),
-              ),
-            ],
-          ),
-        )
-      ],
-    ));
+      ),
+    );
+  }
+
+  Widget _buildFloatingButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isActive = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: isActive ? AppColorConstant.appDeepPurple : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(
+          icon,
+          color: isActive ? Colors.white : AppColorConstant.appDeepPurple,
+          size: 22,
+        ),
+      ),
+    );
   }
 
   Widget buildColorView() {
     return Container(
-      height: Dimens.heightSemiMedium,
-      width: double.infinity,
-      alignment: Alignment.center,
-      color: AppColorConstant.appLightPurple.withOpacity(0.2),
-      padding: const EdgeInsets.symmetric(vertical: DimensPadding.paddingSmallNormal),
-      child: SingleChildScrollView(scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(canvasDrawScreenHelper!.colorList!.length, (index) {
-            bool isSelected = canvasDrawScreenHelper?.selectedColor == canvasDrawScreenHelper?.colorList![index];
-            return buildColorButton(index, isSelected);
-          }),
+      height: 80,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF9C27B0),
+            Color(0xFF673AB7),
+          ],
         ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 1,
+            color: Colors.white24,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              child: Row(
+                children: List.generate(
+                  canvasDrawScreenHelper!.colorList!.length,
+                  (index) {
+                    bool isSelected = canvasDrawScreenHelper?.selectedColor ==
+                        canvasDrawScreenHelper?.colorList![index];
+                    return buildColorButton(index, isSelected);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -152,18 +238,41 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
   Widget buildColorButton(int index, bool isSelected) {
     return GestureDetector(
       onTap: () => canvasDrawScreenHelper!.changeColor(index),
-      child: Container(
-        padding: const EdgeInsets.all(2),
-        margin: const EdgeInsets.symmetric(horizontal: DimensPadding.paddingUltraTiny),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        padding: EdgeInsets.all(isSelected ? 3 : 0),
         decoration: BoxDecoration(
-            color: isSelected ? AppColorConstant.appTransparent : null, shape: BoxShape.circle, border: isSelected ? Border.all(color: canvasDrawScreenHelper!.colorList![index], width: 2) : null),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected
+                ? AppColorConstant.appDeepPurple
+                : Colors.transparent,
+            width: 2,
+          ),
+        ),
         child: Container(
-          height: Dimens.heightSmallMedium,
-          width: Dimens.heightSmallMedium,
+          height: 40,
+          width: 40,
           decoration: BoxDecoration(
             color: canvasDrawScreenHelper!.colorList![index],
             shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: CupertinoColors.systemGrey.withOpacity(0.15),
+                blurRadius: 3,
+                spreadRadius: 0.5,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
+          child: isSelected
+              ? const Icon(
+                  CupertinoIcons.checkmark,
+                  color: CupertinoColors.black,
+                  size: 18,
+                )
+              : null,
         ),
       ),
     );
@@ -171,117 +280,183 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
 
   Widget buildOpacityView() {
     return Container(
-      width: double.infinity,
-      height: Dimens.heightSemiMedium,
-      color: AppColorConstant.appLightPurple.withOpacity(0.2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      height: 80,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF9C27B0),
+            Color(0xFF673AB7),
+          ],
+        ),
+      ),
+      child: Column(
         children: [
-          AppImageAsset(
-            image: AppAsset.icGallery,
-            height: Dimens.heightSmallMedium,
-            color: AppColorConstant.appLightPurple.withOpacity(0.3),
+          Container(
+            height: 1,
+            color: Colors.white24,
           ),
           Expanded(
-            child: Slider(
-              value: canvasDrawScreenHelper!.currentSliderValue,
-              min: 0.2,
-              activeColor: AppColorConstant.appLightPurple,
-              inactiveColor: AppColorConstant.appWhite,
-              max: 1.0,
-              thumbColor: AppColorConstant.appLightPurple,
-              label: (canvasDrawScreenHelper!.currentSliderValue * 100).round().toString(),
-              onChanged: (double value) {
-                canvasDrawScreenHelper!.currentSliderValue = value;
-                canvasDrawController?.update();
-              },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.circle,
+                    color: Colors.white54,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CupertinoSlider(
+                      value: canvasDrawScreenHelper!.currentSliderValue,
+                      min: 0.2,
+                      max: 1.0,
+                      activeColor: Colors.white,
+                      thumbColor: Colors.white,
+                      onChanged: (double value) {
+                        canvasDrawScreenHelper!.currentSliderValue = value;
+                        canvasDrawController?.update();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Icon(
+                    CupertinoIcons.circle_fill,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ],
+              ),
             ),
           ),
-          const AppImageAsset(
-            image: AppAsset.icGallery,
-            color: AppColorConstant.appLightPurple,
-            height: Dimens.heightSmallMedium,
-          )
         ],
-      ).paddingSymmetric(horizontal: DimensPadding.paddingNormal, vertical: DimensPadding.paddingSmallNormal),
+      ),
     );
   }
 
   Widget buildOptionsView() {
     return Container(
-      color: AppColorConstant.appLightPurple,
-      padding: const EdgeInsets.symmetric(horizontal: DimensPadding.paddingNormal, vertical: DimensPadding.paddingSemiNormal),
-      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF9C27B0),
+            Color(0xFF673AB7),
+          ],
+        ),
+      ),
+      padding: const EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: 30,
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          GestureDetector(
+          _buildOptionButton(
+            icon: CupertinoIcons.zoom_in,
+            label: AppStringConstant.zoom,
+            isActive: canvasDrawScreenHelper!.isZoomed,
             onTap: () => canvasDrawScreenHelper?.toggleZoom(),
-            child: Column(
-              children: [
-                AppImageAsset(
-                  color: canvasDrawScreenHelper!.isZoomed ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
-                  image: AppAsset.icZoom,
-                  height: Dimens.heightSmall,
-                ),
-                AppText(
-                  AppStringConstant.zoom,
-                  color: canvasDrawScreenHelper!.isZoomed ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
-                ),
-              ],
-            ),
+            activeColor: const Color(0xFF6C63FF),
+            inactiveColor: Colors.white.withOpacity(0.2),
+            textColor: Colors.white,
           ),
-          GestureDetector(
+          _buildOptionButton(
+            icon: CupertinoIcons.paintbrush_fill,
+            label: AppStringConstant.color,
+            isActive: canvasDrawScreenHelper!.isColorTap,
             onTap: () => canvasDrawScreenHelper!.toggleColor(),
-            child: Column(
-              children: [
-                AppImageAsset(
-                  color: (canvasDrawScreenHelper?.isColorTap == true) ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
-                  image: AppAsset.icColor,
-                  height: Dimens.heightSmall,
-                ),
-                AppText(
-                  AppStringConstant.color,
-                  color: (canvasDrawScreenHelper?.isColorTap == true) ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
-                ),
-              ],
-            ),
+            activeColor: const Color(0xFF3498DB),
+            inactiveColor: Colors.white.withOpacity(0.2),
+            textColor: Colors.white,
           ),
-          GestureDetector(
+          _buildOptionButton(
+            icon: CupertinoIcons.arrow_left_right,
+            label: AppStringConstant.flip,
+            isActive: canvasDrawScreenHelper!.isFlipped,
             onTap: () {
               canvasDrawScreenHelper!.toggleFlip();
               canvasDrawController?.update();
             },
-            child: Column(
-              children: [
-                AppImageAsset(
-                  color: canvasDrawScreenHelper!.isFlipped ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
-                  image: AppAsset.icFlip,
-                  height: Dimens.heightSmall,
-                ),
-                AppText(
-                  AppStringConstant.flip,
-                  color: canvasDrawScreenHelper!.isFlipped ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
+            activeColor: const Color(0xFFE67E22),
+            inactiveColor: Colors.white.withOpacity(0.2),
+            textColor: Colors.white,
+          ),
+          _buildOptionButton(
+            icon: CupertinoIcons.rotate_right,
+            label: AppStringConstant.rotate,
+            isActive: canvasDrawScreenHelper!.rotationAngle != 0.0,
+            description: "Use two fingers",
+            onTap: null,
+            activeColor: const Color(0xFF2ECC71),
+            inactiveColor: Colors.white.withOpacity(0.2),
+            textColor: Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionButton({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    String? description,
+    VoidCallback? onTap,
+    Color activeColor = const Color(0xFF6C63FF),
+    Color inactiveColor = const Color(0xFFF5F5F5),
+    Color textColor = const Color(0xFF6C63FF),
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              color: isActive ? activeColor : inactiveColor,
+              borderRadius: BorderRadius.circular(27),
+              boxShadow: [
+                BoxShadow(
+                  color: isActive
+                      ? activeColor.withOpacity(0.3)
+                      : Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 2),
                 ),
               ],
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? Colors.white : textColor,
+              size: 26,
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              canvasDrawScreenHelper!.rotateImage();
-              canvasDrawController?.update();
-            },
-            child: Column(
-              children: [
-                AppImageAsset(
-                  color: canvasDrawScreenHelper!.rotationAngle != 0.0 ? AppColorConstant.appWhite : AppColorConstant.appLightGrey,
-                  image: AppAsset.icRotate,
-                  height: Dimens.heightSmall,
-                ),
-                AppText(AppStringConstant.rotate, color: canvasDrawScreenHelper!.rotationAngle != 0.0 ? AppColorConstant.appWhite : AppColorConstant.appLightGrey),
-              ],
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
             ),
-          )
+          ),
+          if (description != null)
+            Text(
+              description,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 10,
+              ),
+            ),
         ],
       ),
     );

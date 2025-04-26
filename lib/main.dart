@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       translations: AppTranslations(),
       locale: Locale(LocalisationEnum.en.name),
-      // fallbackLocale: Locale(LocalisationEnum.hi.name),
+      fallbackLocale: Locale(LocalisationEnum.hi.name),
       initialRoute: RouteConstant.initial,
       defaultTransition: Transition.fadeIn,
       getPages: GetPageRouteHelper.routes,

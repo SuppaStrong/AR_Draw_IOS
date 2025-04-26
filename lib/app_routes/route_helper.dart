@@ -14,6 +14,14 @@ class RouteHelper {
 
   void gotoHomeScreen() => Get.offAllNamed(RouteConstant.home);
 
+  void gotoSettingScreen() => Get.toNamed(RouteConstant.setting);
+  
+  void gotoIAPScreen() => Get.toNamed(RouteConstant.iap);
+
+  void gotoInstructionScreen() => Get.toNamed(RouteConstant.instruction);
+
+  void gotoSelectLanguageScreen() => Get.toNamed(RouteConstant.selectLanguage);
+
   void gotoDrawingScreen() => Get.toNamed(RouteConstant.drawing);
 
   void gotoPreviewScreen({required String imagePath, required bool isImage, required bool isText}) =>

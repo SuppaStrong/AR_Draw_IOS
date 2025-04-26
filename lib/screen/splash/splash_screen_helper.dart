@@ -12,12 +12,13 @@ class SplashScreenHelper {
   }
 
   void manageSplashScreen() async {
-    bool isFirstRun = await SharedPrefService.instance.getPrefBoolValue(firstRunKey);
+    bool isFirstRun =
+        await SharedPrefService.instance.getPrefBoolValue(firstRunKey);
     "isFirstRun: $isFirstRun".infoLogs();
 
     Future.delayed(
-      const Duration(seconds: 5),
-          () {
+      const Duration(seconds: 3),
+      () {
         if (isFirstRun) {
           RouteHelper.instance.gotoOnboardingScreen();
           SharedPrefService.instance.setPrefBoolValue(firstRunKey, false);

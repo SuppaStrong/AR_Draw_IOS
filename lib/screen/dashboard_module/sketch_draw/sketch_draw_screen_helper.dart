@@ -35,7 +35,10 @@ class SketchDrawScreenHelper {
   Duration recordingDuration = Duration.zero;
   bool isLocked = false;
   bool isZoomed = false;
-  double lastZoomScale = 1.0;
+
+  // New variables for improved rotation and UI
+  double previousRotation = 0.0; // Track previous rotation for gesture
+  bool isUiHidden = false; // Control UI visibility
 
   SketchDrawScreenHelper(this.state) {
     init();
@@ -56,7 +59,6 @@ class SketchDrawScreenHelper {
       pictureFile = XFile(imagePath!);
     }
     setInitialPosition();
-
   }
 
   void setInitialPosition() {
@@ -65,7 +67,8 @@ class SketchDrawScreenHelper {
       final screenHeight = Get.size.height;
 
       final contentWidth = screenWidth / 1.2;
-      final contentHeight = isText || !isImage ? screenHeight / 1.5 : screenHeight / 1.2;
+      final contentHeight =
+          isText || !isImage ? screenHeight / 1.5 : screenHeight / 1.2;
 
       initialPosition = Offset(
         (screenWidth - contentWidth) / 2,
@@ -76,12 +79,13 @@ class SketchDrawScreenHelper {
       state?.sketchDrawController?.update();
     });
   }
+
   void resetToInitialPosition() {
     position = initialPosition;
     scale = 1.0;
-    lastZoomScale = 1.0;
     baseScale = 1.0;
     rotationAngle = 0.0;
+    previousRotation = 0.0; // Reset previous rotation
     isFlipped = false;
     isZoomed = false;
     currentSliderValue = 1.0;
@@ -98,14 +102,52 @@ class SketchDrawScreenHelper {
       isFlipped = !isFlipped;
     }
   }
+
   void toggleZoom() {
     if (!isLocked) {
       isZoomed = !isZoomed;
       state?.sketchDrawController?.update();
-
     }
   }
 
+  // New method to toggle UI visibility
+  void toggleUiVisibility() {
+    isUiHidden = !isUiHidden;
+    state?.sketchDrawController?.update();
+  }
+
+  // Updated to match CanvasDrawScreenHelper's approach
+  void onScaleStart(ScaleStartDetails details) {
+    if (isLocked) return;
+
+    baseScale = scale;
+    previousRotation = 0.0; // Reset for this gesture
+  }
+
+  // Updated to handle two-finger rotation
+  void onScaleUpdate(ScaleUpdateDetails details) {
+    if (isLocked) return;
+
+    // Handle position (pan)
+    position += details.focalPointDelta;
+
+    // Handle scaling if zoom is enabled
+    if (isZoomed) {
+      scale = (baseScale * details.scale).clamp(1.0, 3.0);
+    }
+
+    // Handle rotation with two fingers
+    if (details.pointerCount >= 2) {
+      // The rotation value in details represents the angle between two fingers
+      final double delta = details.rotation - previousRotation;
+      rotationAngle += delta;
+      previousRotation = details.rotation;
+    }
+
+    state?.sketchDrawController?.update();
+  }
+
+  // Legacy rotation method kept for compatibility but no longer needed for UI button
   void rotateImage() {
     if (!isLocked) {
       rotationAngle += (90 * (3.14159 / 180));
@@ -165,14 +207,17 @@ class SketchDrawScreenHelper {
       stopRecordingTimer();
       videoFile = await cameraController!.stopVideoRecording();
 
-      final Directory? directory = await getExternalStorageDirectory();
+      final Directory? directory = Platform.isAndroid
+          ? await getExternalStorageDirectory()
+          : await getApplicationSupportDirectory();
       final String newPath = '${directory?.path}/Movies';
       await Directory(newPath).create(recursive: true);
 
-      final String filePath = '$newPath/${DateTime.now().millisecondsSinceEpoch}.mp4';
+      final String filePath =
+          '$newPath/${DateTime.now().millisecondsSinceEpoch}.mp4';
       await videoFile!.saveTo(filePath);
 
-      notifyGallery(filePath);
+      // notifyGallery(filePath);
       isRecordingVideo = false;
       videoFile = XFile(filePath);
       state?.sketchDrawController?.update();
@@ -193,24 +238,11 @@ class SketchDrawScreenHelper {
     }
   }
 
+  // Legacy method replaced by onScaleUpdate
   void onImageDrag(ScaleUpdateDetails details) {
-    if (!isLocked) {
-      position += details.focalPointDelta;
-
-      if (isZoomed) {
-        double newScale = baseScale * details.scale;
-        newScale = newScale.clamp(1.0, 3.0);
-
-        if (scale != newScale) {
-          lastZoomScale = scale;
-        }
-
-        scale = newScale;
-      }
-
-      state?.sketchDrawController?.update();
-    }
+    onScaleUpdate(details);
   }
+
   void startRecordingTimer() {
     recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       recordingDuration += const Duration(seconds: 1);

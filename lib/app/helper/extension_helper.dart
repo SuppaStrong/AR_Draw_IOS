@@ -13,7 +13,7 @@ SystemUiOverlayStyle changeStatusBarIconColor({bool lightColor = false}) {
   );
 }
 
-extension SnackBar on String {
+extension SnackBarCustom on String {
 
   showError() {
     Get.snackbar(

@@ -11,7 +11,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class DrawingController extends GetxController{
+class DrawingController extends GetxController {
   Map<String, List<String>> imagesMap = {};
   XFile? categoryImage;
   CroppedFile? croppedFile;
@@ -32,11 +32,15 @@ class DrawingController extends GetxController{
     loadImagesFromJson();
     super.onInit();
   }
+
   Future<void> loadImagesFromJson() async {
     try {
-      String jsonString = await rootBundle.loadString(AppAsset.staticImagesJson);
+      String jsonString =
+          await rootBundle.loadString(AppAsset.staticImagesJson);
+      print(jsonString);
       Map<String, dynamic> jsonData = json.decode(jsonString);
-      imagesMap = jsonData.map((key, value) => MapEntry(key, List<String>.from(value)));
+      imagesMap =
+          jsonData.map((key, value) => MapEntry(key, List<String>.from(value)));
       update();
     } catch (e) {
       "Error loading JSON: $e".errorLogs();
@@ -45,7 +49,8 @@ class DrawingController extends GetxController{
 
   Future<void> getImageFromGallery() async {
     if (isImagePickerActive) return;
-    final permissionGranted = await PermissionService.instance.requestStorageOrMediaPermission();
+    final permissionGranted =
+        await PermissionService.instance.requestStorageOrMediaPermission();
     if (permissionGranted) {
       isImagePickerActive = true;
       categoryImage = await selectImage(false);
@@ -109,7 +114,6 @@ class DrawingController extends GetxController{
               CropAspectRatioPreset.original,
               CropAspectRatioPreset.ratio3x2,
               CropAspectRatioPreset.ratio16x9,
-
             ],
           ),
           IOSUiSettings(
@@ -125,7 +129,8 @@ class DrawingController extends GetxController{
 
       if (croppedFile != null) {
         'Cropped file --> ${croppedFile!.path}'.infoLogs();
-        RouteHelper.instance.gotoPreviewScreen(imagePath: croppedFile!.path, isImage: true,isText: false);
+        RouteHelper.instance.gotoPreviewScreen(
+            imagePath: croppedFile!.path, isImage: true, isText: false);
         update();
       }
     }

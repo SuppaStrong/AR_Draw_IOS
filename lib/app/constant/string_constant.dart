@@ -7,7 +7,7 @@ class AppStringConstant {
   static const String onBoardingDescriptionOne = 'Place the drawing paper over your phone and align the image edges for tracing.';
   static const String onBoardingDescriptionTwo = 'Choose an image from the gallery, available categories, or other sources to draw.';
   static const String onBoardingDescriptionThree = 'Position the image in place by zooming, rotating, and dragging it as needed.';
-  static const String letsStarted = "'Let's Started";
+  static const String letsStarted = "Let's Started";
   static const String next = "Next";
   static const String continueText = "Continue";
   static const String arDrawing = "AR Drawing";
