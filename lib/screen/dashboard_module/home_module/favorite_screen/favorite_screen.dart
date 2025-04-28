@@ -2,7 +2,6 @@ import 'package:ar_draw/app/constant/app_asset.dart';
 import 'package:ar_draw/app/constant/string_constant.dart';
 import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
-import 'package:ar_draw/app/utills/dimension.dart';
 import 'package:ar_draw/app/widgets/app_app_bar.dart';
 import 'package:ar_draw/app/widgets/app_image_asset.dart';
 import 'package:ar_draw/app/widgets/app_text.dart';

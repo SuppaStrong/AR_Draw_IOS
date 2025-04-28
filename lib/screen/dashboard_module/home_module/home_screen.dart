@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:ar_draw/app/constant/app_asset.dart';
-import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/constant/string_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
 import 'package:ar_draw/app_routes/route_helper.dart';

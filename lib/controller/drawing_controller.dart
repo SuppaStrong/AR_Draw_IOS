@@ -11,8 +11,52 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+class LessonData {
+  final String title;
+  final String icon;
+  final int steps;
+  final List<String> dataStep;
+  final int views;
+  final String level;
+  final String difficulty;
+
+  LessonData({
+    required this.title,
+    required this.icon,
+    required this.steps,
+    required this.dataStep,
+    required this.views,
+    required this.level,
+    required this.difficulty,
+  });
+
+  factory LessonData.fromJson(Map<String, dynamic> json) {
+    return LessonData(
+      title: json['title'] ?? '',
+      icon: json['icon'] ?? '',
+      steps: json['steps'] ?? 0,
+      dataStep: json['dataStep'],
+      views: json['views'] ?? 0,
+      level: json['level'] ?? '',
+      difficulty: json['difficulty'] ?? '',
+    );
+  }
+}
+
 class DrawingController extends GetxController {
   Map<String, List<String>> imagesMap = {};
+  Map<String, List<String>> trendingMap = {};
+  Map<String, List<LessonData>> lessonMap = {
+    'beginner': [],
+    'intermediate': [],
+    'expert': [],
+  };
+  Map<String, double> levelProgress = {
+    'beginner': 0.0,
+    'intermediate': 0.0,
+    'expert': 0.0,
+  };
+
   XFile? categoryImage;
   CroppedFile? croppedFile;
   bool isImagePickerActive = false;
@@ -37,10 +81,14 @@ class DrawingController extends GetxController {
     try {
       String jsonString =
           await rootBundle.loadString(AppAsset.staticImagesJson);
-      print(jsonString);
+      String trendingJsonString =
+          await rootBundle.loadString(AppAsset.trendingImagesJson);
       Map<String, dynamic> jsonData = json.decode(jsonString);
+      Map<String, dynamic> trendingJsonData = json.decode(trendingJsonString);
       imagesMap =
           jsonData.map((key, value) => MapEntry(key, List<String>.from(value)));
+      trendingMap = trendingJsonData
+          .map((key, value) => MapEntry(key, List<String>.from(value)));
       update();
     } catch (e) {
       "Error loading JSON: $e".errorLogs();

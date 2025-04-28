@@ -6,6 +6,7 @@ import 'package:ar_draw/screen/dashboard_module/home_module/drawing_screen/drawi
 import 'package:ar_draw/screen/dashboard_module/home_module/favorite_screen/favorite_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/home_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/in_app_purchase/in_app_purchase_screen.dart';
+import 'package:ar_draw/screen/dashboard_module/home_module/level_screen/level_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/photo_sketch_screen/photo_sketch_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/setting_screen/setting_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/text_sketch_screen/text_sketch_screen.dart';
@@ -15,7 +16,6 @@ import 'package:ar_draw/screen/dashboard_module/sketch_draw/sketch_draw_screen.d
 import 'package:ar_draw/screen/onboarding/onboarding_screen.dart';
 import 'package:ar_draw/screen/select_language/select_language_screen.dart';
 import 'package:ar_draw/screen/splash/splash_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RouteConstant {
@@ -36,6 +36,7 @@ class RouteConstant {
   static const String favorites = '/favorites';
   static const String howToUse = '/howToUse';
   static const String webView = '/webView';
+  static const String level = "/level";
 
   static String instruction = '/instruction';
 }
@@ -70,5 +71,6 @@ mixin GetPageRouteHelper {
     GetPage(name: RouteConstant.favorites, page: () => const FavoriteScreen()),
     GetPage(name: RouteConstant.howToUse, page: () => const HowToUseScreen()),
     GetPage(name: RouteConstant.webView, page: () => const WebViewHelper()),
+    GetPage(name: RouteConstant.level, page: () => const LevelScreen(levelKey: 'beginner')),
   ];
 }

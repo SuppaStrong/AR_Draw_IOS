@@ -83,6 +83,9 @@ flutter:
      - assets/icons/
      - assets/json/
      - assets/images/aesthetics/
+     - assets/images/cute/
+     - assets/images/capybara/
+     - assets/images/premium/
      - assets/images/animals/
      - assets/images/anime/
      - assets/images/cars/

@@ -1,0 +1,55 @@
+[
+    {
+        "title": "Cute Alpaca",
+        "icon": "assets/images/lessons/beginner/01_thumbnail.png",
+        "dataStep": [
+            "assets/images/lessons/beginner/1/step_1.png",
+            "assets/images/lessons/beginner/1/step_2.png",
+            "assets/images/lessons/beginner/1/step_3.png",
+            "assets/images/lessons/beginner/1/step_4.png",
+            "assets/images/lessons/beginner/1/step_5.png",
+            "assets/images/lessons/beginner/1/step_6.png"
+        ],
+        "views": 6500,
+        "level": "beginner",
+        "difficulty": "easy"
+    },
+    {
+        "title": "Cute Fox",
+        "icon": "assets/images/lessons/expert/01_thumbnail.png",
+        "dataStep": [
+            "assets/images/lessons/expert/1/step_1.png",
+            "assets/images/lessons/expert/1/step_2.png",
+            "assets/images/lessons/expert/1/step_3.png",
+            "assets/images/lessons/expert/1/step_4.png",
+            "assets/images/lessons/expert/1/step_5.png",
+            "assets/images/lessons/expert/1/step_6.png",
+            "assets/images/lessons/expert/1/step_7.png",
+            "assets/images/lessons/expert/1/step_8.png",
+            "assets/images/lessons/expert/1/step_9.png",
+            "assets/images/lessons/expert/1/step_10.png",
+            "assets/images/lessons/expert/1/step_11.png",
+            "assets/images/lessons/expert/1/step_12.png",
+            "assets/images/lessons/expert/1/step_13.png",
+            "assets/images/lessons/expert/1/step_14.png"
+        ],
+        "views": 5800,
+        "level": "expert",
+        "difficulty": "medium"
+    },
+    {
+        "title": "Cute Alpaca",
+        "icon": "assets/images/lessons/intermediate/01_thumbnail.png",
+        "dataStep": [
+            "assets/images/lessons/intermediate/1/step_1.png",
+            "assets/images/lessons/intermediate/1/step_2.png",
+            "assets/images/lessons/intermediate/1/step_3.png",
+            "assets/images/lessons/intermediate/1/step_4.png",
+            "assets/images/lessons/intermediate/1/step_5.png",
+            "assets/images/lessons/intermediate/1/step_6.png"
+        ],
+        "views": 3452,
+        "level": "intermediate",
+        "difficulty": "hard"
+    }
+]

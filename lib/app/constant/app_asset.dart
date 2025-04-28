@@ -70,5 +70,7 @@ class AppAsset {
 
   //********************************** Json **********************************
   static const String staticImagesJson = '${jsonPath}static_image_json.json';
+  static const String trendingImagesJson = '${jsonPath}trending_image_json.json';
+  static const String lessonsJson = '${jsonPath}lessons_json.json';
 
 }

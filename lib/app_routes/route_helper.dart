@@ -22,6 +22,9 @@ class RouteHelper {
 
   void gotoSelectLanguageScreen() => Get.toNamed(RouteConstant.selectLanguage);
 
+  void gotoLevelScreen(String levelKey) => 
+      Get.toNamed(RouteConstant.level, arguments: {'levelKey': levelKey});
+
   void gotoDrawingScreen() => Get.toNamed(RouteConstant.drawing);
 
   void gotoPreviewScreen({required String imagePath, required bool isImage, required bool isText}) =>
