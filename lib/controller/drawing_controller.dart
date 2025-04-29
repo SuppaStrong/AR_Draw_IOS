@@ -34,8 +34,8 @@ class LessonData {
     return LessonData(
       title: json['title'] ?? '',
       icon: json['icon'] ?? '',
-      steps: json['steps'] ?? 0,
-      dataStep: json['dataStep'],
+      steps: (json['dataStep'] as List).length,
+      dataStep: List<String>.from(json['dataStep'] ?? []),
       views: json['views'] ?? 0,
       level: json['level'] ?? '',
       difficulty: json['difficulty'] ?? '',
@@ -83,8 +83,20 @@ class DrawingController extends GetxController {
           await rootBundle.loadString(AppAsset.staticImagesJson);
       String trendingJsonString =
           await rootBundle.loadString(AppAsset.trendingImagesJson);
+      String lessonJsonString =
+          await rootBundle.loadString(AppAsset.lessonsJson);
       Map<String, dynamic> jsonData = json.decode(jsonString);
       Map<String, dynamic> trendingJsonData = json.decode(trendingJsonString);
+      List<dynamic> lessonJsonData = json.decode(lessonJsonString);
+      for (var lessonItem in lessonJsonData) {
+        LessonData lesson = LessonData.fromJson(lessonItem);
+
+        if (lessonMap.containsKey(lesson.level)) {
+          lessonMap[lesson.level]!.add(lesson);
+        } else {
+          'Unknown level found in lesson JSON: ${lesson.level}'.errorLogs();
+        }
+      }
       imagesMap =
           jsonData.map((key, value) => MapEntry(key, List<String>.from(value)));
       trendingMap = trendingJsonData

@@ -1,4 +1,6 @@
 import 'package:ar_draw/app_routes/route_constant.dart';
+import 'package:ar_draw/controller/drawing_controller.dart';
+import 'package:ar_draw/screen/dashboard_module/canvas_draw/canvas_draw_screen.dart';
 import 'package:get/get.dart';
 
 class RouteHelper {
@@ -21,6 +23,20 @@ class RouteHelper {
   void gotoInstructionScreen() => Get.toNamed(RouteConstant.instruction);
 
   void gotoSelectLanguageScreen() => Get.toNamed(RouteConstant.selectLanguage);
+
+  void gotoLessonStepScreen(LessonData lesson, int lessonIndex, String levelKey) {
+  Get.to(
+    () => CanvasDrawScreen(
+      stepImages: lesson.dataStep,
+      isLessonMode: true,
+      lessonId: lesson.title,
+      levelKey: levelKey,
+      lessonIndex: lessonIndex,
+    ),
+    transition: Transition.rightToLeft,
+    duration: const Duration(milliseconds: 300),
+  );
+}
 
   void gotoLevelScreen(String levelKey) => 
       Get.toNamed(RouteConstant.level, arguments: {'levelKey': levelKey});

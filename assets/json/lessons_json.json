@@ -35,10 +35,10 @@
         ],
         "views": 5800,
         "level": "expert",
-        "difficulty": "medium"
+        "difficulty": "hard"
     },
     {
-        "title": "Cute Alpaca",
+        "title": "Cute Octopus",
         "icon": "assets/images/lessons/intermediate/01_thumbnail.png",
         "dataStep": [
             "assets/images/lessons/intermediate/1/step_1.png",
@@ -50,6 +50,6 @@
         ],
         "views": 3452,
         "level": "intermediate",
-        "difficulty": "hard"
+        "difficulty": "medium"
     }
 ]

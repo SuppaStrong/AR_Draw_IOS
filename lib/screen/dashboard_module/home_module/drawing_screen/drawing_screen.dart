@@ -240,10 +240,9 @@ class DrawingScreenState extends State<DrawingScreen>
               ).animate(itemAnimation),
               child: GestureDetector(
                 onTap: () {
+                  RouteHelper.instance.gotoLevelScreen(levelKey);
                   // Navigate to level's lessons
-                  if (lessonsList.isNotEmpty) {
-                    RouteHelper.instance.gotoLevelScreen(levelKey);
-                  }
+                  if (lessonsList.isNotEmpty) {}
                 },
                 child: Container(
                   width: 280,

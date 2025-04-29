@@ -82,6 +82,10 @@ flutter:
      - assets/icon/
      - assets/icons/
      - assets/json/
+     - assets/images/lessons/
+     - assets/images/lessons/beginner/
+     - assets/images/lessons/intermediate/
+     - assets/images/lessons/expert/
      - assets/images/aesthetics/
      - assets/images/cute/
      - assets/images/capybara/
@@ -94,6 +98,9 @@ flutter:
      - assets/images/fruit/
      - assets/images/space/
      - assets/images/vegetable/
+     - assets/images/lessons/beginner/1/
+     - assets/images/lessons/expert/1/
+     - assets/images/lessons/intermediate/1/
 
 
 

@@ -71,6 +71,13 @@ mixin GetPageRouteHelper {
     GetPage(name: RouteConstant.favorites, page: () => const FavoriteScreen()),
     GetPage(name: RouteConstant.howToUse, page: () => const HowToUseScreen()),
     GetPage(name: RouteConstant.webView, page: () => const WebViewHelper()),
-    GetPage(name: RouteConstant.level, page: () => const LevelScreen(levelKey: 'beginner')),
+    GetPage(
+      name: RouteConstant.level,
+      page: () {
+        final args = Get.arguments as Map<String, dynamic>?;
+        final levelKey = args?['levelKey'] ?? 'beginner';
+        return LevelScreen(levelKey: levelKey);
+      },
+    ),
   ];
 }

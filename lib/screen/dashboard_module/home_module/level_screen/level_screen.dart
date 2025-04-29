@@ -2,6 +2,7 @@ import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
 import 'package:ar_draw/app/widgets/app_app_bar.dart';
 import 'package:ar_draw/app/widgets/app_image_asset.dart';
+import 'package:ar_draw/app_routes/route_helper.dart';
 import 'package:ar_draw/controller/drawing_controller.dart';
 import 'package:ar_draw/controller/level_controller.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/level_screen/level_screen_helper.dart';
@@ -274,7 +275,8 @@ class LevelScreenState extends State<LevelScreen>
     return GestureDetector(
       onTap: () {
         // Navigate to canvas drawing screen in lesson mode
-        // RouteHelper.instance.gotoLessonStepScreen(lesson, index);
+        RouteHelper.instance
+            .gotoLessonStepScreen(lesson, index, widget.levelKey);
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),

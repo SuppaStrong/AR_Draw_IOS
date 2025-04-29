@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/constant/string_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
@@ -11,48 +13,112 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CanvasDrawScreen extends StatefulWidget {
-  const CanvasDrawScreen({super.key});
+  final List<String>? stepImages;
+  final bool isLessonMode;
+  final String? lessonId;
+  final String? levelKey;
+  final int? lessonIndex;
+
+  const CanvasDrawScreen({
+    super.key,
+    this.stepImages,
+    this.isLessonMode = false,
+    this.lessonId,
+    this.levelKey,
+    this.lessonIndex,
+  });
 
   @override
   State<CanvasDrawScreen> createState() => CanvasDrawScreenState();
 }
 
-class CanvasDrawScreenState extends State<CanvasDrawScreen> {
+class CanvasDrawScreenState extends State<CanvasDrawScreen>
+    with SingleTickerProviderStateMixin {
   CanvasDrawScreenHelper? canvasDrawScreenHelper;
   CanvasDrawController? canvasDrawController;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     "current screen --> $runtimeType".logs();
-    canvasDrawScreenHelper ??= CanvasDrawScreenHelper(this);
 
-    return Scaffold(
-      appBar: AppAppBarIOS(
-        title: AppStringConstant.canvasDraw,
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(
-                CupertinoIcons.question,
-                color: AppColorConstant.appDeepPurple,
+    return GetBuilder(
+      init: CanvasDrawController(),
+      builder: (CanvasDrawController controller) {
+        canvasDrawController = controller;
+
+        if (widget.isLessonMode &&
+            widget.stepImages != null &&
+            widget.stepImages!.isNotEmpty &&
+            widget.levelKey != null &&
+            widget.lessonIndex != null &&
+            !controller.isLessonMode) {
+          "Initializing lesson mode with ${widget.stepImages!.length} steps"
+              .logs();
+
+          controller.initLessonMode(
+              widget.stepImages!, widget.levelKey!, widget.lessonIndex!);
+        }
+
+        canvasDrawScreenHelper ??= CanvasDrawScreenHelper(this);
+
+        if (widget.isLessonMode && controller.isLessonMode) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            canvasDrawScreenHelper?.updateLessonStepImage();
+          });
+        }
+
+        return Scaffold(
+          appBar: AppAppBarIOS(
+            title: widget.isLessonMode
+                ? "${widget.lessonId} - Step ${controller.currentStepIndex + 1}/${widget.stepImages?.length ?? 0}"
+                : AppStringConstant.canvasDraw,
+            actions: [
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    CupertinoIcons.question,
+                    color: AppColorConstant.appDeepPurple,
+                  ),
+                  onPressed: () {
+                    RouteHelper.instance.gotoHowToUseScreen();
+                  },
+                ),
               ),
-              onPressed: () {
-                RouteHelper.instance.gotoHowToUseScreen();
-              },
-            ),
+            ],
           ),
-        ],
-      ),
-      body: GetBuilder(
-        init: CanvasDrawController(),
-        builder: (CanvasDrawController controller) {
-          canvasDrawController = controller;
-          return CupertinoPageScaffold(
+          body: CupertinoPageScaffold(
             backgroundColor: CupertinoColors.systemBackground,
             child: SafeArea(
               top: !canvasDrawScreenHelper!.isUiHidden,
@@ -60,6 +126,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
               child: Column(
                 children: [
                   buildCanvasView(),
+                  if (widget.isLessonMode) buildStepControls(),
                   if (!canvasDrawScreenHelper!.isUiHidden) ...[
                     canvasDrawScreenHelper!.isColorTap
                         ? buildColorView()
@@ -69,9 +136,9 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
                 ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -103,15 +170,18 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
                   child: Opacity(
                     opacity: canvasDrawScreenHelper!.currentSliderValue,
                     child: (canvasDrawScreenHelper?.isText != true)
-                        ? AppImageAsset(
-                            image: canvasDrawScreenHelper?.imagePath ?? "",
-                            isFile: canvasDrawScreenHelper?.isImage == true &&
-                                    canvasDrawScreenHelper?.isText == false
-                                ? true
-                                : false,
-                            width: Get.size.width / 1.2,
-                            fit: BoxFit.cover,
-                          )
+                        ? canvasDrawScreenHelper?.imagePath != null
+                            ? AppImageAsset(
+                                image: canvasDrawScreenHelper?.imagePath ?? "",
+                                isFile: canvasDrawScreenHelper?.isImage ==
+                                            true &&
+                                        canvasDrawScreenHelper?.isText == false
+                                    ? true
+                                    : false,
+                                width: Get.size.width / 1.2,
+                                fit: BoxFit.cover,
+                              )
+                            : const SizedBox.shrink()
                         : (canvasDrawScreenHelper!.textImageBytes != null)
                             ? Image.memory(
                                 canvasDrawScreenHelper!.textImageBytes!,
@@ -157,6 +227,252 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
                 ],
               ),
             )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildStepControls() {
+    if (!widget.isLessonMode || canvasDrawController == null) {
+      return const SizedBox.shrink();
+    }
+
+    final bool isLastStep = canvasDrawController!.isLastStep();
+    final double progress = canvasDrawController!.getStepProgress();
+
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, -2),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  "Step ${canvasDrawController!.currentStepIndex + 1}/${widget.stepImages?.length ?? 0}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: AppColorConstant.appDeepPurple,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  "${(progress * 100).toInt()}%",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: AppColorConstant.appDeepPurple,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Stack(
+              children: [
+                Container(
+                  height: 6,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+                Container(
+                  height: 6,
+                  width: MediaQuery.of(context).size.width * progress * 0.9,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppColorConstant.appLightPurple,
+                        AppColorConstant.appDeepPurple,
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                widget.stepImages?.length ?? 0,
+                (index) {
+                  bool isCurrent =
+                      index == canvasDrawController!.currentStepIndex;
+                  bool isCompleted =
+                      index < canvasDrawController!.currentStepIndex;
+
+                  return Container(
+                    width: isCurrent ? 10 : 8,
+                    height: isCurrent ? 10 : 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isCurrent
+                          ? AppColorConstant.appDeepPurple
+                          : isCompleted
+                              ? AppColorConstant.appLightPurple
+                              : Colors.grey.withOpacity(0.3),
+                      border: isCurrent
+                          ? Border.all(
+                              color: AppColorConstant.appDeepPurple
+                                  .withOpacity(0.3),
+                              width: 2,
+                            )
+                          : null,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStepNavigationButton(
+                    icon: CupertinoIcons.arrow_left,
+                    label: "Previous",
+                    onTap: canvasDrawController!.currentStepIndex > 0
+                        ? () {
+                            if (canvasDrawController!.goToPreviousStep()) {
+                              canvasDrawScreenHelper?.updateLessonStepImage();
+                              _animationController.reset();
+                              _animationController.forward();
+                            }
+                          }
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: _buildStepNavigationButton(
+                    icon: isLastStep
+                        ? CupertinoIcons.checkmark_circle
+                        : CupertinoIcons.arrow_right,
+                    label: isLastStep ? "Complete" : "Next",
+                    isPrimary: true,
+                    onTap: () async {
+                      if (isLastStep) {
+                        canvasDrawController!.markStepCompleted();
+                        await canvasDrawController!.completeLessonAndSave();
+
+                        if (context.mounted) {
+                          await showCupertinoDialog(
+                            context: context,
+                            builder: (context) => CupertinoAlertDialog(
+                              title: const Text("Lesson Completed!"),
+                              content: const Text(
+                                  "Great job! You've completed this lesson."),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text("OK"),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        Get.back();
+                      } else {
+                        if (canvasDrawController!.goToNextStep()) {
+                          canvasDrawScreenHelper?.updateLessonStepImage();
+                          _animationController.reset();
+                          _animationController.forward();
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStepNavigationButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback? onTap,
+    bool isPrimary = false,
+  }) {
+    final bool isEnabled = onTap != null;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          gradient: isPrimary && isEnabled
+              ? const LinearGradient(
+                  colors: [
+                    AppColorConstant.appLightPurple,
+                    AppColorConstant.appDeepPurple,
+                  ],
+                )
+              : null,
+          color: !isPrimary && isEnabled
+              ? Colors.white
+              : !isEnabled
+                  ? Colors.grey.withOpacity(0.1)
+                  : null,
+          borderRadius: BorderRadius.circular(12),
+          border: !isPrimary && isEnabled
+              ? Border.all(color: AppColorConstant.appDeepPurple)
+              : null,
+          boxShadow: isEnabled && isPrimary
+              ? [
+                  BoxShadow(
+                    color: AppColorConstant.appDeepPurple.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isPrimary
+                  ? Colors.white
+                  : isEnabled
+                      ? AppColorConstant.appDeepPurple
+                      : Colors.grey,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isPrimary
+                    ? Colors.white
+                    : isEnabled
+                        ? AppColorConstant.appDeepPurple
+                        : Colors.grey,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            ),
           ],
         ),
       ),
@@ -245,9 +561,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isSelected
-                ? AppColorConstant.appDeepPurple
-                : Colors.transparent,
+            color: isSelected ? Colors.white : Colors.transparent,
             width: 2,
           ),
         ),
@@ -259,7 +573,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: CupertinoColors.systemGrey.withOpacity(0.15),
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 3,
                 spreadRadius: 0.5,
                 offset: const Offset(0, 1),
@@ -269,7 +583,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen> {
           child: isSelected
               ? const Icon(
                   CupertinoIcons.checkmark,
-                  color: CupertinoColors.black,
+                  color: Colors.white,
                   size: 18,
                 )
               : null,

@@ -221,7 +221,7 @@ class SketchDrawScreenHelper {
       isRecordingVideo = false;
       videoFile = XFile(filePath);
       state?.sketchDrawController?.update();
-      "Video Successfully saved".showSuccess();
+      "Video Successfully saved to Creation Section in Home".showSuccess();
 
       "Video saved to: $filePath".logs();
     } catch (e) {

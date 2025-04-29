@@ -22,13 +22,11 @@ class CanvasDrawScreenHelper {
   double currentSliderValue = 1.0;
   Color selectedColor = AppColorConstant.appWhite;
   Uint8List? textImageBytes;
-  
-  // For gesture handling
+
   double previousRotation = 0.0;
-  
-  // UI visibility control
+
   bool isUiHidden = false;
-  
+
   List<Color>? colorList = [
     AppColorConstant.appWhite,
     AppColorConstant.appBlack,
@@ -50,16 +48,28 @@ class CanvasDrawScreenHelper {
   }
 
   void init() {
-    imagePath = Get.arguments['imagePath'];
-    isText = Get.arguments['isText'];
-    isImage = Get.arguments['isImage'];
-    if (isText == true && imagePath != null) {
-      try {
-        textImageBytes = base64Decode(imagePath!);
-      } catch (e) {
-        'Error decoding base64 image: $e'.errorLogs();
+    if (state.widget.isLessonMode &&
+        state.canvasDrawController?.getCurrentStepImage() != null) {
+      imagePath = state.canvasDrawController?.getCurrentStepImage();
+      isText = false;
+      isImage = false;
+      'Initialized with lesson step image: $imagePath'.logs();
+    } else if (Get.arguments != null) {
+      imagePath = Get.arguments['imagePath'];
+      isText = Get.arguments['isText'] ?? false;
+      isImage = Get.arguments['isImage'] ?? false;
+
+      if (isText == true && imagePath != null) {
+        try {
+          textImageBytes = base64Decode(imagePath!);
+        } catch (e) {
+          'Error decoding base64 image: $e'.errorLogs();
+        }
       }
+    } else {
+      'Warning: No image path found in arguments or lesson mode.'.warningLogs();
     }
+
     setInitialPosition();
   }
 
@@ -69,9 +79,8 @@ class CanvasDrawScreenHelper {
       final screenHeight = Get.size.height;
 
       final contentWidth = screenWidth / 1.2;
-      final contentHeight = isText || !isImage 
-          ? screenHeight / 1.5 
-          : screenHeight / 1.2;
+      final contentHeight =
+          isText || !isImage ? screenHeight / 1.5 : screenHeight / 1.2;
 
       initialPosition = Offset(
         (screenWidth - contentWidth) / 2,
@@ -97,25 +106,21 @@ class CanvasDrawScreenHelper {
 
   void onScaleStart(ScaleStartDetails details) {
     if (isLocked) return;
-    
+
     baseScale = scale;
-    previousRotation = 0.0; // Reset for this gesture
+    previousRotation = 0.0;
   }
 
   void onScaleUpdate(ScaleUpdateDetails details) {
     if (isLocked) return;
 
-    // Handle position (pan)
     position += details.focalPointDelta;
-    
-    // Handle scaling if zoom is enabled
+
     if (isZoomed) {
       scale = (baseScale * details.scale).clamp(1.0, 3.0);
     }
 
-    // Handle rotation with two fingers
     if (details.pointerCount >= 2) {
-      // The rotation value in details represents the angle between two fingers
       final double delta = details.rotation - previousRotation;
       rotationAngle += delta;
       previousRotation = details.rotation;
@@ -151,9 +156,16 @@ class CanvasDrawScreenHelper {
     selectedColor = colorList![index];
     state.canvasDrawController?.update();
   }
-  
+
   void toggleUiVisibility() {
     isUiHidden = !isUiHidden;
     state.canvasDrawController?.update();
+  }
+
+  void updateLessonStepImage() {
+    if (state.widget.isLessonMode && state.canvasDrawController != null) {
+      imagePath = state.canvasDrawController?.getCurrentStepImage();
+      resetToInitialPosition();
+    }
   }
 }
