@@ -8,6 +8,7 @@ import 'package:ar_draw/app/widgets/app_image_asset.dart';
 import 'package:ar_draw/app_routes/route_helper.dart';
 import 'package:ar_draw/controller/canvas_draw_controller.dart';
 import 'package:ar_draw/screen/dashboard_module/canvas_draw/canvas_draw_screen_helper.dart';
+import 'package:ar_draw/screen/dashboard_module/home_module/archive_screen/archive_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -100,22 +101,23 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen>
                 ? "${widget.lessonId} - Step ${controller.currentStepIndex + 1}/${widget.stepImages?.length ?? 0}"
                 : AppStringConstant.canvasDraw,
             actions: [
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: IconButton(
-                  icon: const Icon(
-                    CupertinoIcons.question,
-                    color: AppColorConstant.appDeepPurple,
-                  ),
-                  onPressed: () {
-                    RouteHelper.instance.gotoHowToUseScreen();
-                  },
-                ),
-              ),
+              // Container(
+              //   margin: const EdgeInsets.all(8),
+              //   decoration: BoxDecoration(
+              //     color: Colors.grey.shade100,
+              //     borderRadius: BorderRadius.circular(12),
+              //   ),
+              //   child: IconButton(
+              //     icon: const Icon(
+              //       CupertinoIcons.question,
+              //       color: AppColorConstant.appDeepPurple,
+              //     ),
+              //     onPressed: () {
+              //       RouteHelper.instance.gotoHowToUseScreen();
+              //     },
+              //   ),
+              // ),
+              _buildCompletionButton()
             ],
           ),
           body: CupertinoPageScaffold(
@@ -140,6 +142,89 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen>
         );
       },
     );
+  }
+
+  Widget _buildCompletionButton() {
+    return GestureDetector(
+      onTap: _markDrawingComplete,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF00D2FF),
+              Color(0xFF3A7BD5),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00D2FF).withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.check_circle_outline,
+              color: Colors.white,
+              size: 22,
+            ),
+            SizedBox(width: 8),
+            Text(
+              "Done",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+// Add this method to your CanvasDrawScreenState class
+  void _markDrawingComplete() async {
+    try {
+      // Get the StatsController
+      final StatsController statsController = Get.find<StatsController>();
+
+      // Mark the drawing as complete
+      await statsController.markDrawingComplete();
+
+      // Show a success message
+      Get.snackbar(
+        "Success",
+        "Drawing marked as complete!",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withOpacity(0.7),
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+        duration: const Duration(seconds: 2),
+      );
+
+      // Optionally navigate back
+      // Get.back();
+    } catch (e) {
+      print("Error marking drawing as complete: $e");
+      Get.snackbar(
+        "Error",
+        "Could not mark drawing as complete",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.7),
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 10,
+      );
+    }
   }
 
   Widget buildCanvasView() {
