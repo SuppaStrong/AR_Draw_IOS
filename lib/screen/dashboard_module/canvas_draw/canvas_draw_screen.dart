@@ -1,11 +1,8 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:ar_draw/app/constant/color_constant.dart';
 import 'package:ar_draw/app/constant/string_constant.dart';
 import 'package:ar_draw/app/helper/extension_helper.dart';
 import 'package:ar_draw/app/widgets/app_app_bar.dart';
 import 'package:ar_draw/app/widgets/app_image_asset.dart';
-import 'package:ar_draw/app_routes/route_helper.dart';
 import 'package:ar_draw/controller/canvas_draw_controller.dart';
 import 'package:ar_draw/screen/dashboard_module/canvas_draw/canvas_draw_screen_helper.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/archive_screen/archive_screen.dart';
@@ -100,25 +97,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen>
             title: widget.isLessonMode
                 ? "${widget.lessonId} - Step ${controller.currentStepIndex + 1}/${widget.stepImages?.length ?? 0}"
                 : AppStringConstant.canvasDraw,
-            actions: [
-              // Container(
-              //   margin: const EdgeInsets.all(8),
-              //   decoration: BoxDecoration(
-              //     color: Colors.grey.shade100,
-              //     borderRadius: BorderRadius.circular(12),
-              //   ),
-              //   child: IconButton(
-              //     icon: const Icon(
-              //       CupertinoIcons.question,
-              //       color: AppColorConstant.appDeepPurple,
-              //     ),
-              //     onPressed: () {
-              //       RouteHelper.instance.gotoHowToUseScreen();
-              //     },
-              //   ),
-              // ),
-              _buildCompletionButton()
-            ],
+            actions: [_buildCompletionButton()],
           ),
           body: CupertinoPageScaffold(
             backgroundColor: CupertinoColors.systemBackground,
@@ -190,16 +169,12 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen>
     );
   }
 
-// Add this method to your CanvasDrawScreenState class
   void _markDrawingComplete() async {
     try {
-      // Get the StatsController
       final StatsController statsController = Get.find<StatsController>();
 
-      // Mark the drawing as complete
       await statsController.markDrawingComplete();
 
-      // Show a success message
       Get.snackbar(
         "Success",
         "Drawing marked as complete!",
@@ -210,11 +185,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen>
         borderRadius: 10,
         duration: const Duration(seconds: 2),
       );
-
-      // Optionally navigate back
-      // Get.back();
     } catch (e) {
-      print("Error marking drawing as complete: $e");
       Get.snackbar(
         "Error",
         "Could not mark drawing as complete",
@@ -458,6 +429,7 @@ class CanvasDrawScreenState extends State<CanvasDrawScreen>
 
                         if (context.mounted) {
                           await showCupertinoDialog(
+                            // ignore: use_build_context_synchronously
                             context: context,
                             builder: (context) => CupertinoAlertDialog(
                               title: const Text("Lesson Completed!"),

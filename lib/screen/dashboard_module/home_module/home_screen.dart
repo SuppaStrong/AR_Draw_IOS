@@ -3,11 +3,10 @@ import 'package:ar_draw/app/helper/extension_helper.dart';
 import 'package:ar_draw/app_routes/route_helper.dart';
 import 'package:ar_draw/controller/home_controller.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/archive_screen/archive_screen.dart';
+import 'package:ar_draw/screen/dashboard_module/home_module/level_screen/all_level_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-
-import 'package:ar_draw/screen/dashboard_module/home_module/level_screen/level_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/favorite_screen/favorite_screen.dart';
 import 'package:ar_draw/screen/dashboard_module/home_module/setting_screen/setting_screen.dart';
 
@@ -93,7 +92,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 },
                 children: const [
                   HomePage(),
-                  LevelScreen(levelKey: 'beginner'),
+                  AllLevelScreen(),
                   FavoriteScreen(),
                   SettingScreen(),
                 ],
@@ -206,7 +205,7 @@ class HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 color: Colors.transparent,
                 elevation: 0,
                 notchMargin: 12,
-                 shape: const CircularNotchedRectangle(),
+                shape: const CircularNotchedRectangle(),
                 child: SizedBox(
                   height: 60,
                   child: Row(
