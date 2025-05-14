@@ -30,7 +30,7 @@ class LevelController extends GetxController {
   Future<void> _initPreferences() async {
     try {
       _prefs = await SharedPreferences.getInstance();
-      loadLessonsForLevel();
+      await loadLessonsForLevel();
     } catch (e) {
       "Error initializing preferences: $e".errorLogs();
     }
@@ -94,10 +94,22 @@ class LevelController extends GetxController {
   }
 
   Future<void> markLessonAsCompleted(int index) async {
+    "Marking lesson as completed for index: $index in level: $levelKey".logs();
     if (index < 0 || index >= completedLessons.length) return;
 
     completedLessons[index] = true;
 
+    await _saveCompletedLessonsToPrefs();
+    updateLevelProgressInDrawingController();
+
+    // Force UI update
+    update();
+
+    // Notify any listening screens - important for UI refresh
+    Get.forceAppUpdate();
+  }
+
+  Future<void> _saveCompletedLessonsToPrefs() async {
     if (_prefs != null) {
       List<String> completedIndices = [];
       for (int i = 0; i < completedLessons.length; i++) {
@@ -107,20 +119,19 @@ class LevelController extends GetxController {
       }
 
       await _prefs!.setStringList(_prefsKey, completedIndices);
-      "Saved completion status to preferences: $completedIndices".logs();
+      "Saved completion status to preferences: $completedIndices for level: $levelKey"
+          .logs();
     }
-
-    updateLevelProgressInDrawingController();
-
-    update();
   }
 
   void updateLevelProgressInDrawingController() {
     if (drawingController != null &&
         drawingController!.levelProgress.containsKey(levelKey)) {
-      drawingController!.levelProgress[levelKey] = getLevelProgress();
+      double progress = getLevelProgress();
+      drawingController!.levelProgress[levelKey] = progress;
       drawingController!.update();
-      "Updated progress in DrawingController: ${getLevelProgress()}".logs();
+      "Updated progress in DrawingController for level $levelKey: $progress"
+          .logs();
     }
   }
 }
